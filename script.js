@@ -97,21 +97,12 @@ function draw() {
 
     // draw player
     
-    
     drawCtx.save()
     drawCtx.translate(playerclass.x, playerclass.y);
     drawCtx.rotate(playerclass.angle - Math.PI / 2);
     drawCtx.font = playerclass.size + "px serif";
     drawCtx.fillText(playerclass.emoji, 0, 0);
     drawCtx.restore();
-
-    
-    
-    
-
-
-
-    
 
     // spawn
 
@@ -123,15 +114,7 @@ function draw() {
         .forEach( t => 
             t.c.objects.push( { x: t.x, y: t.y, size: t.s } ));
     
-            /*
-    if (tickCounter % pineappleCl.spawnRate == 0) {
-        const x = Math.random() * canvasEl.width, 
-            y = Math.random() * canvasEl.height,
-            size = Math.random() * (pineappleSizeRange[1] - pineappleSizeRange[0]) + pineappleSizeRange[0];
-    
-        pineappleList.push({ x, y, size });
-    }*/
-    
+        
     // logic
 
     Object.values(masterclass).forEach( c => {
@@ -156,29 +139,7 @@ function draw() {
         
         playerclass = Object.assign(playerclass, {x, y, v_x, v_y});
     })()
-   /* let {x, y, v_x, v_y}
-    
-    playerclass.v_x *= 0.95;
-    playerclass.v_x -= 0.1;
-    playerclass.v_y *= 0.95;
-    playerclass.v_y -= 0.1;
-
-    if (playerclass.v_x = 0)*/
-
-/*
-
-
-    
-    const toRemove = [];
-
-    for (let i = pineappleList.length - 1; i >= 0; i--) {
-        if ((pineappleList[i][1] += 1) > 400) {
-            pineappleList.splice(i, 1);
-        }
-    }
-    */
-
-
+ 
     tickCounter++;  
 
     drawTimeout = setTimeout(draw, 1000/TICKS_PER_S);
