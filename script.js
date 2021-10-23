@@ -1,7 +1,6 @@
 const TICKS_PER_S = 25,
-    //PINEAPPLE_SPAWN_RATE = 30,
     PARALLAX_SCALAR = 30;
-let drawTimeout, tickCounter = 0;
+let drawTimeout, tickCounter = 0, score = 0;
 
 const canvasEl = document.querySelector("canvas");
 const drawCtx = canvasEl.getContext("2d");
@@ -58,7 +57,6 @@ function main() {
             mouse_y = e.clientY - rect.top,
             angle = Math.atan2( (playerclass.y - mouse_y) , (playerclass.x - mouse_x))
         playerclass = Object.assign(playerclass, {mouse_x, mouse_y, angle})
-        console.log(mouse_x, mouse_y, angle)
     });
 
     canvasEl.addEventListener("click", () => {
@@ -67,12 +65,10 @@ function main() {
         playerclass.v_y -= speed * Math.sin(angle)
     });
 
-    //drawCtx.font = "40px serif";
     drawCtx.textAlign = "center";
     drawCtx.textBaseline = "middle";
 
-    // add 20 starting stars
-    
+    // add 20 starting stars   
     for (let i = 0; i < 20; i++) masterclass.star.objects.push( {
             size: randintinrange(masterclass.star.sizes),
             x: randintinrange({max: canvasEl.width}),
@@ -85,7 +81,6 @@ function main() {
 function draw() {
 
     // draw objects
-
     drawCtx.fillStyle = "black";
     drawCtx.fillRect(0, 0, canvasEl.width, canvasEl.height);
 
@@ -96,7 +91,6 @@ function draw() {
         } ));
 
     // draw player
-    
     drawCtx.save()
     drawCtx.translate(playerclass.x, playerclass.y);
     drawCtx.rotate(playerclass.angle - Math.PI / 2);
@@ -105,7 +99,6 @@ function draw() {
     drawCtx.restore();
 
     // spawn
-
     Object.values(masterclass)
         .filter( c => tickCounter % c.spawnRate == 0)
         .map( c => ({ c, x: randintinrange( {max: canvasEl.width} ),
@@ -115,8 +108,7 @@ function draw() {
             t.c.objects.push( { x: t.x, y: t.y, size: t.s } ));
     
         
-    // logic
-
+    // off-screen logic
     Object.values(masterclass).forEach( c => {
         for (let i = c.objects.length - 1; i >= 0; i--) {
             // add to y pos in acc. with parallax scalar.
@@ -128,7 +120,6 @@ function draw() {
     });
 
     // move player
-
     (() => {
         let {x, y, v_x, v_y} = playerclass;
         x += v_x;              y += v_y;
@@ -139,9 +130,46 @@ function draw() {
         
         playerclass = Object.assign(playerclass, {x, y, v_x, v_y});
     })()
- 
-    tickCounter++;  
 
+    // check collisions with pumpkins and pineapples every 3rd frame
+    if (tickCounter % 3 == 0) {
+        for (const obj of masterclass.pumpkin.objects) {
+            const dx = Math.abs(obj.x - playerclass.x),
+                dy = Math.abs(obj.y - playerclass.y),
+                sizedist = (obj.size + playerclass.size) / 2;
+            
+            // optimization
+            if ((dx + dy) > sizedist) continue;
+
+            const ctc = Math.sqrt(
+                Math.pow(dx, 2) +
+                Math.pow(dy, 2)
+            );
+
+            if (ctc < sizedist) return;
+        }
+
+        for (let i = masterclass.pineapple.objects.length - 1; i >= 0; i--) {
+            const obj = masterclass.pineapple.objects[i];
+            const dx = Math.abs(obj.x - playerclass.x),
+                dy = Math.abs(obj.y - playerclass.y),
+                sizedist = (obj.size + playerclass.size) / 2;
+            
+            if ((dx + dy) > sizedist) continue;
+
+            const ctc = Math.sqrt(
+                Math.pow(dx, 2) +
+                Math.pow(dy, 2)
+            );
+
+            if (ctc > sizedist + 10) continue;
+
+            masterclass.pineapple.objects.splice(i, 1);
+            console.log("score:", ++score);
+        }
+    }
+
+    tickCounter++;  
     drawTimeout = setTimeout(draw, 1000/TICKS_PER_S);
 }
 
