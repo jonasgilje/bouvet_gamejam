@@ -1,5 +1,5 @@
-const TICKS_PER_S = 25,
-    PARALLAX_SCALAR = 30;
+const TICKS_PER_S = 25;
+let PARALLAX_SCALAR = 30;
 let drawTimeout, tickCounter = 0, score = 0;
 
 const canvasEl = document.querySelector("canvas");
@@ -39,7 +39,7 @@ let playerclass = {
     v_y: 0,
     mouse_x: canvasEl.width / 2,
     mouse_y: 0,
-    angle: 0,
+    angle: Math.PI / 2,
     speed: 10
 }
 
@@ -165,9 +165,11 @@ function draw() {
             if (ctc > sizedist + 10) continue;
 
             masterclass.pineapple.objects.splice(i, 1);
-            console.log("score:", ++score);
+            document.getElementById("score").innerHTML = ++score;
         }
     }
+
+    if (tickCounter % 20 == 0) PARALLAX_SCALAR *= 0.99;
 
     tickCounter++;  
     drawTimeout = setTimeout(draw, 1000/TICKS_PER_S);
